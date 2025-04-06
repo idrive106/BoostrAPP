@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h2 class="centered">Админ-панель</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Возраст</th>
+        <th>Должность</th>
+        <th>Роль</th>
+        <th>Активность</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.age}"></td>
+        <td th:text="${user.jobFunction}"></td>
+        <td>
+  <span th:each="role : ${user.roles}">
+      <span th:text="${role.name}"
+            th:classappend="${role.name == 'ROLE_ADMIN'} ? 'role-badge admin' : 'role-badge user'"></span><br/>
+  </span>
+        </td>
+        <td th:text="${user.accountNonLocked} ? 'Активен' : 'Заблокирован'"></td>
+        <td>
+            <!-- Контейнер для кнопок -->
+            <div class="button-container">
+                <!-- Кнопка Удалить -->
+                <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post" style="display:inline">
+                    <button type="submit" class="delete">Удалить</button>
+                </form>
+                <!-- Кнопка Изменить -->
+                <form th:action="@{/admin/edit/{id}(id=${user.id})}" method="get" style="display:inline">
+                    <button type="submit" class="edit">Изменить</button>
+                </form>
+                <!-- Кнопка Заблокировать/Разблокировать -->
+                <form th:action="@{/admin/toggleLock/{id}(id=${user.id})}" method="post" style="display:inline">
+                    <button type="submit" class="toggle-lock"
+                            th:text="${user.accountNonLocked} ? 'Заблокировать' : 'Разблокировать'"></button>
+                </form>
+            </div>
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+<form th:action="@{/logout}" method="post">
+    <button type="submit" class="logout">Выйти</button>
+</form>
+</body>
+</html>

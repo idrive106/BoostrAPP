@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактирование пользователя</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h2 class="centered">Редактировать пользователя</h2>
+
+<!-- Ошибки и уведомления -->
+<div th:if="${error}" class="error-message">
+  <p th:text="${error}"></p>
+</div>
+
+<form th:action="@{/admin/edit/{id}(id=${user.id})}" method="post" class="form-box">
+  <!-- Имя пользователя -->
+  <div class="form-group">
+    <label for="name">Имя:</label>
+    <input type="text" th:value="${user.name}" name="name" id="name" placeholder="Введите имя" required>
+  </div>
+
+  <!-- Должность пользователя -->
+  <div class="form-group">
+    <label for="jobFunction">Должность:</label>
+    <input type="text" th:value="${user.jobFunction}" name="jobFunction" id="jobFunction" placeholder="Введите должность" required>
+  </div>
+
+  <!-- Возраст пользователя -->
+  <div class="form-group">
+    <label for="age">Возраст:</label>
+    <input type="number" th:value="${user.age}" name="age" id="age" placeholder="Введите возраст" required>
+  </div>
+
+  <!-- Пароль (если меняем) -->
+  <div class="form-group">
+    <label for="password">Новый пароль:</label>
+    <input type="password" name="password" id="password" placeholder="Введите новый пароль (если меняете)">
+  </div>
+
+  <!-- Роли пользователя -->
+  <div class="form-group">
+    <h4>Роли:</h4>
+    <div th:each="role : ${roles}">
+      <label>
+        <input type="checkbox" th:value="${role.id}" name="roles"
+               th:checked="${#lists.contains(user.roles, role)}" />
+        <span th:text="${role.name}"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Кнопки -->
+  <div class="form-group action-buttons">
+    <button type="submit" class="update">Сохранить изменения</button>
+    <button type="button" onclick="window.location.href='/admin'" class="delete">Назад</button>
+  </div>
+</form>
+<form th:action="@{/logout}" method="post">
+  <button type="submit" class="logout">Выйти</button>
+</form>
+</body>
+</html>

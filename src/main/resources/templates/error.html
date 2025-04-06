@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ой! Что-то пошло не так...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            background: #fff;
+            display: block;
+            margin: 30px auto;
+            border: 1px solid #ccc;
+        }
+
+        h1 {
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+<h1>Упс! Кажется, произошла ошибка</h1>
+<p>Попробуй сыграть в мини-игру, пока мы всё не починим 😎</p>
+
+<canvas id="game" width="600" height="200"></canvas>
+
+<script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    let dino = { x: 50, y: 150, width: 30, height: 30, velocityY: 0, jumping: false };
+    let obstacle = { x: 600, y: 150, width: 20, height: 30 };
+    let gravity = 0.8;
+    let score = 0;
+
+    document.addEventListener('keydown', function (e) {
+        if (e.code === 'Space' && !dino.jumping) {
+            dino.velocityY = -20;
+            dino.jumping = true;
+        }
+    });
+
+    function update() {
+        dino.velocityY += gravity;
+        dino.y += dino.velocityY;
+
+        if (dino.y >= 150) {
+            dino.y = 150;
+            dino.jumping = false;
+        }
+
+        obstacle.x -= 2;
+
+        if (obstacle.x < 0) {
+            obstacle.x = 600;
+            score++;
+        }
+
+        // Проверка столкновений
+        if (
+            dino.x < obstacle.x + obstacle.width &&
+            dino.x + dino.width > obstacle.x &&
+            dino.y < obstacle.y + obstacle.height &&
+            dino.y + dino.height > obstacle.y
+        ) {
+            alert("Бам! Попробуй ещё раз!");
+            document.location.reload();
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Динозавр
+        ctx.fillStyle = 'green';
+        ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+
+        // Препятствие
+        ctx.fillStyle = 'red';
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+        // Счёт
+        ctx.fillStyle = 'black';
+        ctx.font = '20px Arial';
+        ctx.fillText('Счёт: ' + score, 10, 20);
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    loop();
+</script>
+</body>
+</html>
