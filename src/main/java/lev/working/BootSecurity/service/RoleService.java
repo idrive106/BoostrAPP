@@ -1,9 +1,7 @@
 package lev.working.BootSecurity.service;
 
 import lev.working.BootSecurity.models.Role;
-import lev.working.BootSecurity.models.User;
 import lev.working.BootSecurity.repositories.RoleRepository;
-import lev.working.BootSecurity.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
@@ -13,12 +11,10 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository, UserRepository userRepository) {
+    public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
     }
 
     public List<Role> findRoleById(List<Long> id) {
@@ -33,11 +29,5 @@ public class RoleService {
 
     public List<Role> getRoles() {
         return roleRepository.findAll();
-    }
-
-    public List<Role> getRolesByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        return user.getRoles();
     }
 }

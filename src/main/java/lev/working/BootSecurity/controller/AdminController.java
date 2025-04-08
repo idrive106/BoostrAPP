@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
@@ -24,9 +27,14 @@ public class AdminController {
     }
 
     @GetMapping("/admin")
-    public String showAdminPanel(Model model) {
+    public String showAdminPanel(Model model, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
         List<User> users = userService.findAll();
+        List<Role> roles = roleService.getRoles();
+        model.addAttribute("activeTab", "admin");
         model.addAttribute("users", users);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("roles", roles);
         return "admin";
     }
 
@@ -56,22 +64,61 @@ public class AdminController {
 
     @PostMapping("/admin/edit/{id}")
     public String updateUser(@PathVariable Long id,
-                             @ModelAttribute("user") User updatedUser,
-                             @RequestParam(value = "roles", required = false) List<Long> roles,
-                             Model model) {
-        try {
-            if (roles == null || roles.isEmpty()) {
-                roles = roleService.getRolesByUserId(id)
-                        .stream()
-                        .map(Role::getId)
-                        .collect(Collectors.toList());
-            }
+                             @RequestParam String name,
+                             @RequestParam String jobFunction,
+                             @RequestParam int age,
+                             @RequestParam(required = false) String password,
+                             @RequestParam(required = false, name = "roles") Long[] rolesArray) {
 
-            userService.update(updatedUser, roles, id);
-            return "redirect:/admin";
+        User updatedUser = new User();
+        updatedUser.setName(name);
+        updatedUser.setJobFunction(jobFunction);
+        updatedUser.setAge(age);
+        updatedUser.setPassword(password);
+        List<Long> roleIds = (rolesArray != null) ? Arrays.asList(rolesArray) : new ArrayList<>();
+
+        userService.update(updatedUser, roleIds, id);
+
+        return "redirect:/admin";
+    }
+
+    @GetMapping("/admin/adminProfile")
+    public String showAdminProfile(Model model, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("activeTab", "adminProfile");
+        model.addAttribute("user", currentUser);
+        return "adminProfile";
+    }
+
+    @GetMapping("/admin/addUser")
+    public String addUser(@RequestParam(value = "created", required = false) Boolean created, Model model, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("activeTab", "admin");
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", roleService.getRoles());
+        model.addAttribute("created", created);
+        return "/addUser";
+    }
+
+    @PostMapping("/admin/addUser")
+    public String addUser(@ModelAttribute User user,
+                          @RequestParam(value = "roles", required = false) List<Long> roleIds,
+                          Model model) {
+        try {
+            List<Role> roles;
+
+            if (roleIds == null || roleIds.isEmpty()) {
+                roles = roleService.defaultRole();
+            } else {
+                roles = roleService.findRoleById(roleIds);
+            }
+            userService.save(user, roles);
+            return "redirect:/admin/addUser?created=true";
         } catch (Exception e) {
-            model.addAttribute("error", "Ошибка обновления пользователя.");
-            return "editUser";
+            model.addAttribute("error", "Ошибка при создании пользователя: " + e.getMessage());
+            return "/addUser";
         }
     }
 }

@@ -34,7 +34,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
         if (isAdmin) {
             response.sendRedirect("/admin");
         } else if (isUser) {
-            response.sendRedirect("/user/" + user.getId());
+            response.sendRedirect("/user/" + user.getName());
         } else {
             response.sendRedirect("/login");
         }

@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.security.Principal;
+
 @Controller
 public class UserController {
 
@@ -18,15 +20,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/user/{id}")
-    public String viewUser(@PathVariable Long id, Model model) {
-        try {
-            User user = userService.findById(id);
-            model.addAttribute("user", user);
-            return "userProfile";
-        } catch (Exception e) {
-            model.addAttribute("error", "Пользователь не найден: " + e.getMessage());
-            return "error";
-        }
+
+    @GetMapping("/user/{name}")
+    public String viewUser(Model model, Principal principal, @PathVariable String name) {
+        User user = userService.findByUsername(name);
+        User currentUser = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+        model.addAttribute("currentUser", currentUser);
+        return "userProfile";
     }
 }

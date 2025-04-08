@@ -76,7 +76,6 @@ public class UserService{
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 updUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
-            updUser.getRoles().clear();
             if (roles != null && !roles.isEmpty()) {
                 updUser.setRoles(roleService.findRoleById(roles));
             }
