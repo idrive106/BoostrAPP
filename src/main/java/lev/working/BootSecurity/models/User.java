@@ -15,11 +15,25 @@ public class User implements UserDetails {
     private Long id;
 
     private String name;
+
     private String jobFunction;
+
     private int age;
+
     private String password;
 
     private boolean accountNonLocked = true;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
+    private List<Role> roles;
+
+    public User() {
+    }
 
     public String getJobFunction() {
         return jobFunction;
@@ -35,17 +49,6 @@ public class User implements UserDetails {
 
     public void setAge(int salary) {
         this.age = salary;
-    }
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private List<Role> roles;
-
-    public User() {
     }
 
     public Long getId() {
